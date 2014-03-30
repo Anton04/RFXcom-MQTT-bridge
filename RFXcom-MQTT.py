@@ -1,26 +1,51 @@
 from RFXtrx.pyserial import PySerialTransport
+from RFXtrx import LightingDevice
 import mosquitto,sys
 import json
 import thread
+import time
+from RFXtrx.lowlevel import Lighting2 
 
 PORT = '/dev/ttyUSB0'
 LISTEN = True
 PREFIX = "rfxcom"
 MQTT_HOST = "localhost"
 
-def on_connect(mosq, rc):
+def on_connect(mosq, rc,a):
     mosq.subscribe(PREFIX+"/#", 0)
 
-def on_message(mosq, msg):
-    print("RECIEVED MQTT MESSAGE: "+msg.topic + " " + str(msg.payload))
-    topics = msg.topic.split("/")
-    name = topics[-2]
-    if topics[-1] == "set":
-    value = int(msg.payload)
-    
-    #TODO Create device and set value
-    
-    return value 
+def on_message(a,mosq, msg):
+    global transport
+    #try:
+    if True:
+    	print("RECIEVED MQTT MESSAGE: "+msg.topic + " " + str(msg.payload))
+    	topics = msg.topic.split("/")
+    	name = topics[-2]
+    	if topics[-1] == "set":
+    	    value = int(msg.payload)
+    	    #print "Set command"
+
+    	    #Implemented support for Lightening2 only
+	    if topics[-4] == "17":
+		print "Seting Lighting2 level" 
+		print topics
+		print value
+		pkt = Lighting2()
+		#pkt.parse_id(topics[-3],topics[-2])
+		pkt.id_combined = int(topics[-2][:-3],16)
+		pkt.unitcode = int(topics[-2][-2:])
+		pkt.subtype = int(topics[-3])
+		pkt.packettype = int(topics[-4])
+		device = LightingDevice(pkt)
+		if value == 0:
+		    device.send_off(transport)
+		elif value == 100:
+		    device.send_on(transport)
+		else:
+		    device.send_dim(transport,value)
+    #except:
+#	    print "Error when parsing incomming message."
+    return 
     
 def ControlLoop():
     # schedule the client loop to handle messages, etc.
@@ -45,16 +70,23 @@ thread.start_new_thread(ControlLoop,())
 
 while True:
     event = transport.receive_blocking()
-    
-    value = json.dumps(event.values)
 
-    topic = PREFIX + event.device.packettype + "/" + event.device.type_string + "/" + event.device.id_string
+    if event == None:
+	continue
+    
+    for value in event.values:
+   
+        topic = PREFIX +"/"+ str(event.device.packettype) + "/" + str(event.device.subtype) + "/" + event.device.id_string+"/"+value
 
-    print topic
+	print topic + " " + str(event.values[value])
+
+	#print "DEBUG"
+	#print event.device.id_combined
+	#print event.device.unitcode    
+
+        client.publish(topic , event.values[value], 1)
     
-    client.publish(topic , value, 1)
-    
-    print event 
+    	print event 
     
     
 client.disconnect() 
