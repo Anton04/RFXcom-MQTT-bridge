@@ -1,6 +1,7 @@
 from RFXtrx.pyserial import PySerialTransport
 import mosquitto,sys
 import json
+import thread
 
 PORT = '/dev/ttyUSB0'
 LISTEN = True
@@ -11,7 +12,7 @@ def on_connect(mosq, rc):
     mosq.subscribe(PREFIX+"/#", 0)
 
 def on_message(mosq, msg):
-    print(msg.topic + " " + str(msg.payload))
+    print("RECIEVED MQTT MESSAGE: "+msg.topic + " " + str(msg.payload))
     topics = msg.topic.split("/")
     name = topics[-2]
     if topics[-1] == "set":
@@ -40,6 +41,7 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 #Start tread...
+thread.start_new_thread(ControlLoop,())
 
 while True:
     event = transport.receive_blocking()
