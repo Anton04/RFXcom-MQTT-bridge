@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from RFXtrx.pyserial import PySerialTransport
 from RFXtrx import LightingDevice
 import mosquitto,sys
