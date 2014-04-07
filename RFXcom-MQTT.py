@@ -34,8 +34,9 @@ def on_message(a,mosq, msg):
 		print value
 		pkt = Lighting2()
 		#pkt.parse_id(topics[-3],topics[-2])
-		pkt.id_combined = int(topics[-2][:-3],16)
-		pkt.unitcode = int(topics[-2][-2:])
+		code = topics[-2].split(":")
+		pkt.id_combined = int(code[0],16)
+		pkt.unitcode = int(code[1])
 		pkt.subtype = int(topics[-3])
 		pkt.packettype = int(topics[-4])
 		device = LightingDevice(pkt)
