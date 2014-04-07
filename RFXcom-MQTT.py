@@ -59,7 +59,7 @@ def ControlLoop():
 transport = PySerialTransport(PORT, debug=True)
 #transport.reset()
 client = mosquitto.Mosquitto("RFXcom-to-MQTT-client")
-
+client.username_pw_set("anton","1234")
 
 #Connect and notify others of our presence. 
 client.connect(MQTT_HOST)
