@@ -24,7 +24,12 @@ def on_message(a,mosq, msg):
     	topics = msg.topic.split("/")
     	name = topics[-2]
     	if topics[-1] == "set":
-    	    value = int(msg.payload)
+	    value = msg.payload
+	    if value == "ON":
+		value = 100
+	    elif value == "OFF":
+                value = 0
+    	    value = int(value)
     	    #print "Set command"
 
     	    #Implemented support for Lightening2 only
