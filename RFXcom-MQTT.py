@@ -18,13 +18,13 @@ def on_connect(mosq, rc,a):
 
 def on_message(a,mosq, msg):
     global transport
-    #try:
-    if True:
+    try:
+   
     	print("RECIEVED MQTT MESSAGE: "+msg.topic + " " + str(msg.payload))
     	topics = msg.topic.split("/")
     	name = topics[-2]
     	if topics[-1] == "set":
-	    value = msg.payload
+	    value = msg.payload.upper()
 	    if value == "ON":
 		value = 100
 	    elif value == "OFF":
@@ -51,8 +51,9 @@ def on_message(a,mosq, msg):
 		    device.send_on(transport)
 		else:
 		    device.send_dim(transport,value)
-    #except:
-#	    print "Error when parsing incomming message."
+    except:
+        print "Error when parsing incomming message."
+    
     return 
     
 def ControlLoop():
