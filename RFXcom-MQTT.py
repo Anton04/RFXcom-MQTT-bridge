@@ -59,9 +59,9 @@ def on_message(a,mosq, msg):
 def ControlLoop():
     # schedule the client loop to handle messages, etc.
     print "Starting MQTT listener"
-    while True:
-        client.loop()
-        time.sleep(0.1)
+    client.loop_forever()
+    print "Closing connection to MQTT"
+    time.sleep(1)
 
 transport = PySerialTransport(PORT, debug=True)
 #transport.reset()
@@ -69,7 +69,7 @@ client = mosquitto.Mosquitto("RFXcom-to-MQTT-client")
 client.username_pw_set("anton","1234")
 
 #Connect and notify others of our presence. 
-client.connect(MQTT_HOST)
+client.connect(MQTT_HOST, keepalive=10)
 client.publish("system/RFXcom-to-MQTT", "Online",1)
 client.on_connect = on_connect
 client.on_message = on_message
