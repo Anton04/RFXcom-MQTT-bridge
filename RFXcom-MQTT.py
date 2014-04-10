@@ -71,7 +71,7 @@ client.will_set(topic = "system/RFXcom", payload="Offline", qos=1, retain=True)
 
 #Connect and notify others of our presence. 
 client.connect(MQTT_HOST, keepalive=10)
-client.publish("system/RFXcom", "Online",1,True)
+client.publish("system/" + PREFIX, "Online",1,True)
 client.on_connect = on_connect
 client.on_message = on_message
 
