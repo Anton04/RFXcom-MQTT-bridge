@@ -66,16 +66,18 @@ def ControlLoop():
 transport = PySerialTransport(PORT, debug=True)
 #transport.reset()
 client = mosquitto.Mosquitto("RFXcom-to-MQTT-client")
-client.username_pw_set("anton","1234")
+client.username_pw_set("driver","1234")
+client.will_set(topic = "system/RFXcom-to-MQTT", payload="Offline", qos=1, retain=True)
 
 #Connect and notify others of our presence. 
 client.connect(MQTT_HOST, keepalive=10)
-client.publish("system/RFXcom-to-MQTT", "Online",1)
+client.publish("system/RFXcom-to-MQTT", "Online",1,True)
 client.on_connect = on_connect
 client.on_message = on_message
 
 #Start tread...
-thread.start_new_thread(ControlLoop,())
+#thread.start_new_thread(ControlLoop,())
+client.loop_start()
 
 while True:
     event = transport.receive_blocking()
